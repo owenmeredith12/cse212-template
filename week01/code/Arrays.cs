@@ -13,7 +13,20 @@ public static class Arrays
         // step by step before you write the code. The plan should be clear enough that it could
         // be implemented by another person.
 
-        return []; // replace this return statement with your own
+        //im going to create an array to store the output
+        //then create a for loop that iterates through starting at 1 until the length
+        //during each iteration i am going to multiply i * the number given then store the output in the
+        // array from step 1
+
+        double[] multiples = new double[length + 1];
+
+        for (int i = 1; i <= length; i++)
+        {
+            double result = i * number;
+            multiples[i] = result;
+        }
+
+        return multiples; 
     }
 
     /// <summary>
@@ -29,5 +42,39 @@ public static class Arrays
         // Remember: Using comments in your program, write down your process for solving this problem
         // step by step before you write the code. The plan should be clear enough that it could
         // be implemented by another person.
+
+        // im not sure if this is the optimal way to do this but im going to 
+        //take the input array and split it at the number that is provided as the
+        // shift amound and then store the right have in and array and the left half
+        // in another array and then swap their places and then recombine them
+
+        int count = data.Count;
+        int splitIndex = count - amount;
+
+        List<int> left = new List<int>();
+        List<int> right = new List<int>();
+
+        for (int i = 0; i < splitIndex; i++)
+        {
+            left.Add(data[i]);
+        }
+
+        for (int i = splitIndex; i < count; i++)
+        {
+            right.Add(data[i]);
+        }
+
+        data.Clear();
+
+        for (int i = 0; i < right.Count; i++)
+        {
+            data.Add(right[i]);
+        }
+
+        for (int i = 0; i < left.Count; i++)
+        {
+            data.Add(left[i]);
+        }
+        Console.WriteLine(string.Join(", ", data));
     }
 }
