@@ -21,8 +21,28 @@ public static class SetsAndMaps
     /// <param name="words">An array of 2-character words (lowercase, no duplicates)</param>
     public static string[] FindPairs(string[] words)
     {
-        // TODO Problem 1 - ADD YOUR CODE HERE
-        return [];
+        var check = new HashSet<string>();
+        var result = new List<string>();
+
+        foreach (var word in words)
+        {
+            // Skip words like "aa"
+            if (word[0] == word[1])
+                continue;
+
+            string reversed = new string(new[] { word[1], word[0] });
+
+            if (check.Contains(reversed))
+            {
+                result.Add($"{reversed} & {word}");
+            }
+            else
+            {
+                check.Add(word);
+            }
+        }
+
+        return result.ToArray();
     }
 
     /// <summary>
@@ -42,7 +62,16 @@ public static class SetsAndMaps
         foreach (var line in File.ReadLines(filename))
         {
             var fields = line.Split(",");
-            // TODO Problem 2 - ADD YOUR CODE HERE
+            string degree = fields[3].Trim();
+
+            if (degrees.ContainsKey(degree))
+            {
+                degrees[degree]++;
+            }
+            else
+            {
+                degrees[degree] = 1;
+            }
         }
 
         return degrees;
@@ -66,8 +95,52 @@ public static class SetsAndMaps
     /// </summary>
     public static bool IsAnagram(string word1, string word2)
     {
-        // TODO Problem 3 - ADD YOUR CODE HERE
-        return false;
+
+        var anagram = new Dictionary<char, int>();
+        string normalize1 = word1.Replace(" ", "");
+        string normalize2 = word2.Replace(" ","");
+
+        string lower1 = normalize1.ToLower();
+        string lower2 = normalize2.ToLower();
+            
+        if(lower1.Length != lower2.Length)
+        {
+            return false;    
+        }
+
+        foreach(char letter in lower1)
+        {
+            if (anagram.ContainsKey(letter))
+            {
+                anagram[letter]++;
+            }
+            else
+            {
+                anagram[letter] = 1;
+            }
+        }
+
+        foreach(char letter in lower2)
+        {
+            if (!anagram.ContainsKey(letter))
+            {
+                return false;
+            }
+            else
+            {
+                anagram[letter]--;
+            }
+        }
+
+        foreach (int count in anagram.Values)
+        {
+            if (count != 0)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -87,20 +160,29 @@ public static class SetsAndMaps
     public static string[] EarthquakeDailySummary()
     {
         const string uri = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
+
         using var client = new HttpClient();
-        using var getRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
-        using var jsonStream = client.Send(getRequestMessage).Content.ReadAsStream();
-        using var reader = new StreamReader(jsonStream);
-        var json = reader.ReadToEnd();
+        var response = client.GetStringAsync(uri).Result; // synchronous
+
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-        var featureCollection = JsonSerializer.Deserialize<FeatureCollection>(json, options);
+        var featureCollection = JsonSerializer.Deserialize<FeatureCollection>(response, options);
 
-        // TODO Problem 5:
-        // 1. Add code in FeatureCollection.cs to describe the JSON using classes and properties 
-        // on those classes so that the call to Deserialize above works properly.
-        // 2. Add code below to create a string out each place a earthquake has happened today and its magitude.
-        // 3. Return an array of these string descriptions.
-        return [];
+        var results = new List<string>();
+
+        if (featureCollection?.features != null)
+        {
+            foreach (var feature in featureCollection.features)
+            {
+                var prop = feature.properties;
+
+                if (prop?.mag != null && !string.IsNullOrEmpty(prop.place))
+                {
+                    results.Add($"Magnitude {prop.mag:F1} - Location: {prop.place}");
+                }
+            }
+        }
+
+        return results.ToArray();
     }
 }
